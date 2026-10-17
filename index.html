@@ -1,1 +1,138 @@
-
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beat Circles</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090b18;color:#fff;font-family:Arial,sans-serif;text-align:center}
+header{padding:18px;font-size:28px;font-weight:bold;color:#51e5ff;text-shadow:0 0 15px #00c8ff}
+.panel{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:10px}
+.stat{background:#171b30;padding:10px 16px;border-radius:12px}
+button,select,input{font-size:16px;border:0;border-radius:10px;padding:11px;margin:5px}
+button{background:#19c9ed;color:#001018;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.96)}
+#game{position:relative;margin:15px auto;width:min(92vw,440px);height:min(92vw,440px);max-height:440px;border:2px solid #263a68;border-radius:50%;background:radial-gradient(circle,#182345,#090b18 70%);overflow:hidden}
+#ring{position:absolute;inset:12%;border:2px dashed #344c82;border-radius:50%}
+.note{position:absolute;width:54px;height:54px;border-radius:50%;border:3px solid white;box-shadow:0 0 18px currentColor;transform:translate(-50%,-50%);font-weight:bold;color:#fff}
+.note span{pointer-events:none}
+#message{min-height:28px;color:#7ef8ff;font-size:18px}
+.controls{padding:10px}
+label{display:inline-block;margin:5px}
+small{color:#a9b4d5}
+</style>
+</head>
+<body>
+<header>🔵 BEAT CIRCLES</header>
+<div class="panel">
+ <div class="stat">⭐ Очки: <b id="score">0</b></div>
+ <div class="stat">🔥 Комбо: <b id="combo">0</b></div>
+ <div class="stat">❤️ Життя: <b id="lives">3</b></div>
+ <div class="stat">🎯 Влучність: <b id="accuracy">100%</b></div>
+</div>
+<div class="controls">
+ <label>BPM
+ <input id="bpm" type="number" min="100" max="600" value="120" style="width:90px">
+ </label>
+ <button id="start">▶ ГРАТИ</button>
+ <button id="music">🔊 Звук: УВІМК.</button>
+ <br>
+ <label>Музика:
+ <input id="audio" type="file" accept="audio/*">
+ </label>
+ <br>
+ <audio id="player" controls loop style="width:min(90%,360px)"></audio>
+</div>
+<div id="message">Натискай ноти, коли вони з'являються!</div>
+<div id="game"><div id="ring"></div></div>
+<small>Натискай на кольорові кола до того, як вони зникнуть.</small>
+<script>
+const $=id=>document.getElementById(id);
+let score=0,combo=0,lives=3,hits=0,misses=0,playing=false,soundOn=true;
+let spawnTimer=null,notes=new Set(),audioCtx=null;
+const colors=["#00e5ff","#ff38d1","#a5ff36","#ffb52e","#9a70ff","#ff476b"];
+function update(){
+ $("score").textContent=score;
+ $("combo").textContent=combo;
+ $("lives").textContent=lives;
+ $("accuracy").textContent=(hits+misses?Math.round(hits/(hits+misses)*100):100)+"%";
+}
+function beep(freq=600,duration=.07){
+ if(!soundOn)return;
+ try{
+  audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.frequency.value=freq;o.type="sine";g.gain.value=.07;
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start();g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);
+  o.stop(audioCtx.currentTime+duration);
+ }catch(e){}
+}
+function removeNote(n,miss){
+ if(!notes.has(n))return;
+ notes.delete(n);n.remove();
+ if(miss){
+  misses++;combo=0;lives--;
+  $("message").textContent="Промах! 💥";
+  beep(180,.15);update();
+  if(lives<=0)endGame();
+ }
+}
+function spawn(){
+ if(!playing)return;
+ const game=$("game"),note=document.createElement("button");
+ note.className="note";
+ const color=colors[Math.floor(Math.random()*colors.length)];
+ note.style.background=color;note.style.color=color;
+ note.style.left=(18+Math.random()*64)+"%";
+ note.style.top=(18+Math.random()*64)+"%";
+ note.innerHTML="<span>●</span>";
+ game.appendChild(note);notes.add(note);
+ let done=false;
+ note.onclick=()=>{
+  if(!playing||done)return;
+  done=true;notes.delete(note);note.remove();
+  hits++;combo++;score+=10+Math.min(combo,50);
+  $("message").textContent=combo%10===0?"🔥 "+combo+" КОМБО!":"Влучання! +"+(10+Math.min(combo,50));
+  beep(500+Math.min(combo,20)*25,.06);update();
+ };
+ note._timer=setTimeout(()=>removeNote(note,true),Math.max(700,3000-($("bpm").value-100)*3));
+}
+function endGame(){
+ playing=false;clearInterval(spawnTimer);
+ notes.forEach(n=>{clearTimeout(n._timer);n.remove()});notes.clear();
+ $("start").textContent="🔄 ЗНОВУ";
+ $("message").textContent="Гру завершено! Рахунок: "+score+" очок.";
+}
+function startGame(){
+ clearInterval(spawnTimer);
+ notes.forEach(n=>{clearTimeout(n._timer);n.remove()});notes.clear();
+ score=0;combo=0;hits=0;misses=0;
+ const bpm=Math.max(100,Math.min(600,Number($("bpm").value)||120));
+ $("bpm").value=bpm;
+ lives=bpm>=500?1:bpm>=300?2:3;
+ playing=true;update();
+ $("start").textContent="⏹ ЗУПИНИТИ";
+ $("message").textContent="Поїхали! Лови ритм! 🎵";
+ spawn();
+ spawnTimer=setInterval(spawn,Math.max(250,60000/bpm*2));
+ const player=$("player");
+ if(player.src){player.play().catch(()=>{});}
+}
+$("start").onclick=()=>{
+ if(playing){endGame();$("message").textContent="Гру зупинено.";}
+ else startGame();
+};
+$("music").onclick=()=>{
+ soundOn=!soundOn;
+ $("music").textContent="🔊 Звук: "+(soundOn?"УВІМК.":"ВИМК.");
+};
+$("audio").onchange=e=>{
+ const file=e.target.files[0];
+ if(file){$("player").src=URL.createObjectURL(file);$("message").textContent="Музику завантажено! Натисни «Грати».";}
+};
+update();
+</script>
+</body>
+</html>
