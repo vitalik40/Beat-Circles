@@ -1,99 +1,308 @@
-Ти — розробник моєї браузерної ритм-гри Beat Circles. Продовжуй розробляти наявний проєкт, не створюй гру з нуля і не видаляй існуючі функції без потреби.
-
-МЕТА:
-Створити повноцінну браузерну ритм-гру, яку можна опублікувати на GitHub Pages, а пізніше підключити до Supabase для глобального рейтингу, акаунтів і збереження прогресу.
-
-1. ІГРОВИЙ ПРОЦЕС
-
-- Кольорові кнопки та кола, за якими гравець натискає в ритм музики.
-- Рахунок, комбо, точність і найкращий результат.
-- Вибір BPM та можливість ввести власне значення.
-- Підтримка завантаження власної музики.
-- Налаштування гучності, звуків натискання та вібрації.
-- Навчання для нових гравців.
-
-2. СЕРЦЯ ТА СКЛАДНІСТЬ
-
-- 100–299 BPM: 3 серця.
-- 300–499 BPM: 2 серця.
-- 500 BPM і вище: 1 серце.
-- Промах забирає одне серце.
-- На головному ігровому екрані завжди показуй кількість сердець.
-- Після промаху серце має красиво здригатися, світитися та зникати з анімацією.
-- Коли серця закінчуються, раунд завершується і показує результат.
-- Один раунд має одну спробу без повторного відновлення сердець.
-
-3. КІЛЬКІСТЬ КНОПОК
-
-- До 249 BPM: 4 кнопки.
-- 250–499 BPM: 7 кнопок.
-- Від 500 BPM: 10 кнопок.
-- Кількість кнопок повинна автоматично змінюватися відповідно до BPM.
-
-4. МАГАЗИН
-   Додай магазин, у якому гравці витрачають зароблені ігрові бали на:
-
-- Осінню тему.
-- Аніме-тему.
-- Неонову тему.
-- Веселкову тему.
-- Нові кольори кіл.
-- Анімації та ефекти.
-- Оформлення профілю.
-
-Куплені предмети зберігаються після перезавантаження гри.
-
-5. БОНУСИ ТА ПРОФІЛЬ
-
-- Навчання для новачків.
-- Бонусні бали після проходження навчання.
-- Профіль гравця з ім'ям, аватаром і рекордами.
-- Досягнення, медалі та щоденні завдання.
-- Вкладка з короною для преміум-функцій.
-
-6. ПРЕМІУМ
-   Передбач три варіанти:
-
-- Starter Pack — 9 грн.
-- Premium — 249 грн, одноразова покупка назавжди.
-- Super Premium — 749 грн, одноразова покупка назавжди.
-
-Поки що реалізуй лише демонстраційний магазин без справжніх платежів. Не повідомляй, що покупку здійснено, якщо платіжна система не підключена.
-
-7. БАНЕРИ
-   Створи три широкі банери для внутрішніх оголошень:
-
-- Нові теми.
-- Щоденні бонуси.
-- Premium та Super Premium.
-
-Банери не повинні займати весь екран.
-
-8. GITHUB
-
-- Підготуй повний комплект файлів для GitHub.
-- Основний файл гри має називатися index.html.
-- Додай README.md з інструкцією.
-- Переконайся, що гра працює на GitHub Pages.
-- Не використовуй секретні ключі в коді браузера.
-
-9. SUPABASE
-   Підготуй архітектуру для майбутнього підключення:
-
-- Реєстрації та входу.
-- Глобального рейтингу.
-- Збереження профілю.
-- Синхронізації досягнень між пристроями.
-
-Не вигадуй, що сервер або авторизація вже працюють, якщо їх ще не налаштовано.
-
-10. ЯКІСТЬ
-
-- Адаптація для Android і комп'ютерів.
-- Красиві анімації та сучасний дизайн.
-- Без помилок у JavaScript.
-- Зберігай наявні функції гри.
-- Перевіряй готовий код перед передаванням.
-- Надавай готові файли для завантаження, а не лише інструкції.
-
-Почни з перевірки наявних файлів Beat Circles. Потім підготуй оновлену версію та коротку інструкцію з публікації на GitHub Pages.
+<!DOCTYPE html>  <html lang="uk">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<title>Beat Circles</title>  
+<style>  
+:root{--bg:#101020;--panel:#1d1d35;--accent:#a855f7;--text:#fff}  
+*{box-sizing:border-box}  
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial,sans-serif;text-align:center}  
+header{padding:20px 10px;background:#19192d;border-bottom:2px solid var(--accent)}  
+h1{margin:0;color:#d9a8ff;font-size:32px}  
+nav{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;padding:12px}  
+button,select,input{font:inherit}  
+button,select{border:0;border-radius:12px;padding:10px 14px;background:#343451;color:white;cursor:pointer}  
+button:hover{filter:brightness(1.2)}  
+button:disabled{opacity:.4}  
+main{max-width:650px;margin:auto;padding:12px}  
+.panel{background:var(--panel);border-radius:18px;padding:16px;margin:12px 0}  
+.stats{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap;font-weight:bold}  
+.big{font-size:24px;color:#e9b8ff}  
+#hearts{font-size:27px;letter-spacing:4px}  
+#board{display:grid;grid-template-columns:repeat(2,minmax(90px,1fr));gap:14px;margin:22px auto;max-width:440px}  
+.pad{aspect-ratio:1;border-radius:50%;border:4px solid #ffffff35;box-shadow:0 0 18px #ffffff18;touch-action:manipulation;transition:transform .08s}  
+.pad:active{transform:scale(.91)}  
+.p0{background:#ff477e}.p1{background:#3fbcff}  
+.p2{background:#a970ff}.p3{background:#ffb52e}  
+.p4{background:#25d9a0}.p5{background:#ff7043}  
+.p6{background:#fff05b}.p7{background:#f46bff}  
+.p8{background:#5680ff}.p9{background:#ff5270}  
+#message{min-height:28px;font-weight:bold;color:#ffd76a}  
+.hidden{display:none!important}  
+input[type=range]{width:150px;max-width:100%}  
+label{display:block;margin:10px}  
+.shopitem{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0;padding:10px;background:#292944;border-radius:12px}  
+small{color:#c8c8dc}  
+</style>  
+</head>  
+<body>  
+<header>  
+<h1>🎵 BEAT CIRCLES</h1>  
+<div><small>Feel the beat. Hit the circles.</small></div>  
+</header>  <nav>  
+<button onclick="tab('game')">🎮 Гра</button>  
+<button onclick="tab('shop')">🛍️ Магазин</button>  
+<button onclick="tab('profile')">👤 Профіль</button>  
+<button onclick="tab('settings')">⚙️ Налаштування</button>  
+<button onclick="tab('crown')">👑 Crown</button>  
+</nav>  <main>  
+<section id="game" class="page">  
+<div class="panel">  
+<div class="stats">  
+<div>⭐ Очки<br><span class="big" id="score">0</span></div>  
+<div>🔥 Комбо<br><span class="big" id="combo">0</span></div>  
+<div>🪙 Монети<br><span class="big" id="coins">0</span></div>  
+</div>  
+<hr>  
+<div>❤️ Життя</div>  
+<div id="hearts">❤️❤️❤️</div>  
+<div class="stats">  
+<div>BPM: <span id="bpmLabel">120</span></div>  
+<div>Точність: <span id="accuracy">100%</span></div>  
+</div>  
+</div>  <div class="panel">  
+<label>Швидкість BPM  
+<input id="bpm" type="range" min="100" max="600" value="120"  
+oninput="updateBpm()">  
+</label>  
+<label>Свій BPM  
+<input id="customBpm" type="number" min="100" max="600" value="120"  
+style="width:90px">  
+<button onclick="setCustomBpm()">Застосувати</button>  
+</label>  
+<button onclick="startGame()" style="background:var(--accent)">▶ Почати раунд</button>  
+<button onclick="stopGame()">■ Стоп</button>  
+<div id="message">Натисни «Почати раунд»!</div>  
+<div id="board"></div>  
+<div id="result"></div>  
+</div>  <div class="panel">  
+<h3>🎵 Твоя музика</h3>  
+<input type="file" id="musicFile" accept="audio/*">  
+<audio id="music" controls style="width:100%;margin-top:12px"></audio>  
+</div>  
+</section>  <section id="shop" class="page hidden">  
+<div class="panel">  
+<h2>🛍️ Магазин</h2>  
+<p>Твої монети: <b id="shopCoins">0</b> 🪙</p>  
+<div id="shopItems"></div>  
+<h3>💎 Демоверсія товарів</h3>  
+<p>Starter Pack — 9 грн</p>  
+<p>Premium назавжди — 249 грн</p>  
+<p>Super Premium назавжди — 749 грн</p>  
+<small>Це лише демонстрація. Справжні платежі не підключені.</small>  
+</div>  
+</section>  <section id="profile" class="page hidden">  
+<div class="panel">  
+<h2>👤 Профіль</h2>  
+<label>Твоє ім'я  
+<input id="playerName" maxlength="20" placeholder="Гравець">  
+</label>  
+<button onclick="saveName()">Зберегти ім'я</button>  
+<p id="profileName"></p>  
+<p>Зіграно раундів: <b id="rounds">0</b></p>  
+<p>Перемог у навчанні: <b id="tutorialDone">0</b></p>  
+<h3>🏆 Досягнення</h3>  
+<p id="achievements">Почни грати, щоб відкрити досягнення!</p>  
+</div>  
+</section>  <section id="settings" class="page hidden">  
+<div class="panel">  
+<h2>⚙️ Налаштування</h2>  
+<label>Гучність музики  
+<input id="musicVolume" type="range" min="0" max="100" value="70"  
+oninput="music.volume=this.value/100">  
+</label>  
+<label><input id="muteClick" type="checkbox"> Вимкнути звук кнопок</label>  
+<label><input id="vibration" type="checkbox" checked> Вібрація при промаху</label>  
+<label>Тема  
+<select id="theme" onchange="setTheme(this.value)">  
+<option value="default">Неон</option>  
+<option value="autumn">Осінь</option>  
+<option value="anime">Аніме</option>  
+<option value="rainbow">Веселка</option>  
+</select>  
+</label>  
+<button onclick="showTutorial()">📖 Навчання</button>  
+</div>  
+</section>  <section id="crown" class="page hidden">  
+<div class="panel">  
+<h2>👑 Crown Club</h2>  
+<p>Виконуй завдання, збирай монети та відкривай теми!</p>  
+<div class="shopitem"><span>🎯 Влуч у 20 кіл</span><b>+50 🪙</b></div>  
+<div class="shopitem"><span>🔥 Зроби комбо 10</span><b>+30 🪙</b></div>  
+<p><small>Глобальний рейтинг з'явиться в майбутньому.</small></p>  
+</div>  
+</section>  
+</main>  <script>  
+const $=id=>document.getElementById(id);  
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};  
+let data=load('bcdata',{coins:0,rounds:0,best:0,name:'',tutorial:0,unlocked:['Неон']});  
+let score=0,combo=0,hits=0,misses=0,hearts=3,running=false;  
+let bpm=120,timer=null,target=-1,roundHits=0,roundMiss=0;  
+let audioCtx=null;  
+const themes={  
+default:['#101020','#1d1d35','#a855f7'],  
+autumn:['#26160d','#4b2918','#ff8738'],  
+anime:['#160c30','#302052','#ff62d2'],  
+rainbow:['#101a30','#202b4c','#35e4d4']  
+};  
+function save(){localStorage.setItem('bcdata',JSON.stringify(data));refresh()}  
+function refresh(){  
+$('coins').textContent=data.coins;  
+$('shopCoins').textContent=data.coins;  
+$('rounds').textContent=data.rounds;  
+$('tutorialDone').textContent=data.tutorial;  
+$('profileName').textContent='Гравець: '+(data.name||'Гравець');  
+$('playerName').value=data.name||'';  
+$('achievements').textContent=data.best>=1000?'🏆 Майстер ритму!':data.rounds>=5?'🎵 Ритм уже в крові!':'Поки що немає';  
+}  
+function tab(name){  
+document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));  
+$(name).classList.remove('hidden');  
+if(name==='shop')renderShop();  
+}  
+function setTheme(name){  
+let t=themes[name]||themes.default;  
+document.documentElement.style.setProperty('--bg',t[0]);  
+document.documentElement.style.setProperty('--panel',t[1]);  
+document.documentElement.style.setProperty('--accent',t[2]);  
+}  
+function updateBpm(){  
+bpm=+$('bpm').value;  
+$('bpmLabel').textContent=bpm;  
+$('customBpm').value=bpm;  
+drawPads();  
+}  
+function setCustomBpm(){  
+bpm=Math.max(100,Math.min(600,Number($('customBpm').value)||120));  
+$('bpm').value=bpm;updateBpm();  
+}  
+function padCount(){return bpm<250?4:bpm<500?7:10}  
+function drawPads(){  
+$('board').innerHTML='';  
+$('board').style.gridTemplateColumns=`repeat(${padCount()<=4?2:padCount()<=7?3:4},minmax(0,1fr))`;  
+for(let i=0;i<padCount();i++){  
+let b=document.createElement('button');  
+b.className='pad p'+(i%10);  
+b.setAttribute('aria-label','Коло '+(i+1));  
+b.onclick=()=>hit(i);  
+$('board').appendChild(b);  
+}  
+}  
+function updateHearts(){  
+let n=bpm<300?3:bpm<500?2:1;  
+$('hearts').textContent='❤️'.repeat(Math.max(0,hearts))+'🖤'.repeat(Math.max(0,n-hearts));  
+}  
+function sound(freq=440){  
+if($('muteClick').checked)return;  
+try{  
+audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();  
+let o=audioCtx.createOscillator(),g=audioCtx.createGain();  
+o.frequency.value=freq;g.gain.value=.06;  
+o.connect(g);g.connect(audioCtx.destination);o.start();  
+g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.12);  
+o.stop(audioCtx.currentTime+.12);  
+}catch(e){}  
+}  
+function startGame(){  
+stopGame();  
+bpm=+$('bpm').value;  
+score=0;combo=0;hits=0;misses=0;roundHits=0;roundMiss=0;  
+hearts=bpm<300?3:bpm<500?2:1;  
+running=true;target=-1;  
+$('result').textContent='';  
+$('message').textContent='Влучай у кола, коли воно підсвічене!';  
+updateStats();updateHearts();  
+nextBeat();  
+timer=setInterval(nextBeat,Math.max(150,60000/bpm));  
+}  
+function nextBeat(){  
+if(!running)return;  
+if(target!==-1){  
+misses++;roundMiss++;combo=0;hearts--;  
+$('message').textContent='Промах! 💔';  
+if($('vibration').checked&&navigator.vibrate)navigator.vibrate(100);  
+$('board').classList.remove('shake');  
+void $('board').offsetWidth;  
+$('board').classList.add('shake');  
+if(hearts<=0){endGame();return}  
+}  
+target=Math.floor(Math.random()*padCount());  
+const pads=document.querySelectorAll('.pad');  
+pads.forEach((p,i)=>{p.style.filter=i===target?'brightness(1.7) drop-shadow(0 0 14px white)':''});  
+updateHearts();updateStats();  
+}  
+function hit(i){  
+if(!running)return;  
+if(i===target){  
+hits++;roundHits++;combo++;  
+score+=10+Math.min(combo,50);  
+data.coins+=1;  
+target=-1;sound(350+i*65);  
+$('message').textContent='Чудово! +'+(10+Math.min(combo,50))+' очок';  
+document.querySelectorAll('.pad').forEach(p=>p.style.filter='');  
+updateStats();updateHearts();  
+}else{  
+misses++;roundMiss++;combo=0;hearts--;  
+sound(120);  
+$('message').textContent='Не те коло! 💔';  
+if($('vibration').checked&&navigator.vibrate)navigator.vibrate(100);  
+updateHearts();updateStats();  
+if(hearts<=0)endGame();  
+}  
+}  
+function updateStats(){  
+$('score').textContent=score;  
+$('combo').textContent=combo;  
+$('accuracy').textContent=(hits+misses?Math.round(hits/(hits+misses)*100):100)+'%';  
+}  
+function endGame(){  
+running=false;clearInterval(timer);timer=null;target=-1;  
+data.rounds++;data.best=Math.max(data.best,score);  
+$('message').textContent='Раунд завершено!';  
+$('result').innerHTML='<h3>🏁 Результат: '+score+' очок</h3><p>Влучань: '+roundHits+' · Промахів: '+roundMiss+'</p><button onclick="startGame()">🔄 Ще раз</button>';  
+document.querySelectorAll('.pad').forEach(p=>p.style.filter='');  
+save();  
+}  
+function stopGame(){  
+running=false;clearInterval(timer);timer=null;target=-1;  
+}  
+function renderShop(){  
+const items=[  
+['Осінь','Осінь',80,'autumn'],  
+['Аніме','Аніме',120,'anime'],  
+['Веселка','Веселка',150,'rainbow'],  
+['Неон','Неон',0,'default']  
+];  
+$('shopItems').innerHTML='';  
+items.forEach(([title,key,cost,theme])=>{  
+let row=document.createElement('div');row.className='shopitem';  
+let span=document.createElement('span');span.textContent=title+' — '+cost+' 🪙';  
+let b=document.createElement('button');  
+let owned=data.unlocked.includes(key);  
+b.textContent=owned?'Вибрати':'Купити';  
+b.onclick=()=>{  
+if(!data.unlocked.includes(key)){  
+if(data.coins<cost){alert('Не вистачає монет!');return}  
+data.coins-=cost;data.unlocked.push(key);save();  
+}  
+$('theme').value=theme;setTheme(theme);renderShop();  
+};  
+row.append(span,b);$('shopItems').appendChild(row);  
+});  
+}  
+function saveName(){data.name=$('playerName').value.trim().slice(0,20);save()}  
+function showTutorial(){  
+alert('🎵 НАВЧАННЯ\\n1. Натисни «Почати раунд».\\n2. Влучай у підсвічені кола.\\n3. Промах забирає серце.\\n4. Чим вищий BPM, тим складніше!\\n\\nНатисни OK, щоб отримати +100 монет за перше навчання.');  
+if(!data.tutorial){data.tutorial=1;data.coins+=100;save();alert('+100 монет! 🪙')}  
+}  
+$('musicFile').addEventListener('change',e=>{  
+let f=e.target.files[0];  
+if(f){$('music').src=URL.createObjectURL(f);$('music').volume=+$('musicVolume').value/100}  
+});  
+$('music').volume=.7;  
+drawPads();updateBpm();refresh();  
+</script>  <style>  
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}  
+.shake{animation:shake .18s}  
+</style>  </body>  
+</html>
